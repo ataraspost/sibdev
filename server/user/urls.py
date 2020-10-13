@@ -1,10 +1,10 @@
 
-from django.urls import re_path, include
+from django.urls import path
 
-from .views import RegistrationAPIView
-from .views import LoginAPIView
+from .views import RegistrationAPIView, LoginAPIView, MeAPIView
 
 urlpatterns = [
-    re_path(r'^registration/?$', RegistrationAPIView.as_view(), name='user_registration'),
-    re_path(r'^login/?$', LoginAPIView.as_view(), name='user_login'),
+    path('registration/', RegistrationAPIView.as_view(), name='user_registration'),
+    path('login/', LoginAPIView.as_view(), name='user_login'),
+    path('me/', MeAPIView.as_view(), name='user_me')
 ]

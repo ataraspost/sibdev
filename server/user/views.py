@@ -4,7 +4,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import User
 from .serializers import LoginSerializer
 from .serializers import RegistrationSerializer
 
@@ -50,3 +49,9 @@ class LoginAPIView(APIView):
         serializer.is_valid(raise_exception=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MeAPIView(APIView):
+
+    def get(self, request):
+        return Response({'user': self.request.user.email, 'token': self.request.user.token}, status=status.HTTP_200_OK)

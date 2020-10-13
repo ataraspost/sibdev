@@ -13,7 +13,7 @@ from django.contrib.auth.models import BaseUserManager
 
 class UserManager(BaseUserManager):
 
-    def _create_user(self, username, email, password=None, **extra_fields):
+    def _create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError('Данный адрес электронной почты должен быть установлен')
 
@@ -24,12 +24,12 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def create_user(self, username, email, password=None, **extra_fields):
+    def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
         extra_fields.setdefault('email_is_activate', False)
 
-        return self._create_user(username, email, password, **extra_fields)
+        return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, username, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
