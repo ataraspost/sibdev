@@ -1,0 +1,79 @@
+version: '3'
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        DEBUG: "True"
+    container_name: server_sibdev
+    command: poetry run python3 manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
+      - redis
+      - celery-default-worker
+      - rabbitmq
+      - migration
+    environment:
+      DEBUG: 'True'
+      DATABASE_URL: postgres://postgres@db/postgres
+      REDIS_URL: redis://redis/0
+      BROKER_URL: amqp://rabbit:rabbit@rabbitmq:5672/rabbit_vhost
+    ports:
+      - 8000:8000
+    volumes:
+      - ./server:/home/python/app
+
+  migration:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        DEBUG: 'True'
+    command: poetry run python3 manage.py migrate --noinput
+    volumes:
+       - ./server:/home/python/app
+    depends_on:
+      - db
+
+  celery-default-worker:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        DEBUG: 'True'
+    container_name: celery_default_worker_sibdev
+    command: poetry run celery -A config worker -l info -Q default,celery -n default-worker
+    depends_on:
+      - db
+      - redis
+      - rabbitmq
+    environment:
+      DEBUG: 'True'
+      DATABASE_URL: postgres://postgres@db/postgres
+      REDIS_URL: redis://redis/0
+      BROKER_URL: amqp://rabbit:rabbit@rabbitmq:5672/rabbit_vhost'\
+    volumes:
+      - ./server:/home/python/app
+
+  rabbitmq:
+    image: rabbitmq:3.7.5-management
+    container_name: reabbitmq_sibdev
+    ports:
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+      RABBITMQ_DEFAULT_VHOST: rabbit_vhost
+
+  db:
+    image: postgres:12.2
+    container_name: db_sibdev
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+  redis:
+    image: redis:5
+    container_name: redis_sibdev
