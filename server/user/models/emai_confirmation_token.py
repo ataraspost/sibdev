@@ -2,7 +2,7 @@
 from django.db import models
 
 
-class EmailConfirmation(models.Model):
+class EmailConfirmationToken(models.Model):
     token = models.CharField(
         max_length=99,
         unique=True,

@@ -8,6 +8,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from .serializers import LoginSerializer
 from .serializers import RegistrationSerializer
 from.tasks import task_send_email
+from user.models import EmailConfirmationToken
 
 class RegistrationAPIView(APIView):
     permission_classes = [AllowAny]
@@ -43,10 +44,20 @@ class MeAPIView(APIView):
     def get(self, request):
         return Response({'user': self.request.user.email, 'token': self.request.user.token}, status=status.HTTP_200_OK)
 
-class ActivateEmail(APIView):
+class ActivateEmailAPIView(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, uidb64, token):
+    def get(self, request, token):
+        try:
+            token = EmailConfirmationToken.objects.select_related('user').get(token=token)
+        except EmailConfirmationToken.DoesNotExist:
+            return Response({
+            'message': 'error email activate'
+        }, status=status.HTTP_400_BAD_REQUEST)
+        user = token.user
+        user.email_is_activate = True
+        user.save()
+        token.delete()
         return Response({
-            'user': user.email
-        })
+            'message': 'email activate'
+        }, status=status.HTTP_200_OK)
