@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+from celery.schedules import crontab
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -142,3 +144,30 @@ REST_FRAMEWORK = {
         'user.backends.JWTAuthentication',
         )
 }
+
+CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'amqp://rabbit:rabbit@rabbitmq:5672/rabbit_vhost')
+
+CELERY_BEAT_SCHEDULE = {
+    'update_documents': {
+        'task': 'apps.lots.tasks.update_lots_from_parsed_url',
+        'schedule': crontab(hour='*/1'),
+    },
+}
+
+CELERY_DEFAULT_QUEUE = 'default'
+
+
+#TODO переделать почту
+# MAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_USE_TLS = True
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'testsibdev1@gmail.com'
+# EMAIL_HOST_PASSWORD = '123asdqwezxc'
+
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_HOST_USER = 'coldy@bro.agency'
+DEFAULT_FROM_EMAIL = 'coldy@bro.agency'
+EMAIL_HOST_PASSWORD = 'hellocoldy2020'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

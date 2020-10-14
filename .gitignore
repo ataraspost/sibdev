@@ -1,2 +1,3 @@
 .idea/
-/server/user/__pycache__/*
+*.pyc
+*.pyo
