@@ -19,3 +19,10 @@ def task_send_email(id_user, domain):
         f'{domain}/activate-email/{ec.token}/',
         'coldy@bro.agency',
         (user.email,))
+
+@shared_task
+def set_hash_user(id_precedent):
+    from .models import Precedent
+    user = Precedent.objects.get(pk=id_precedent).user
+    user.set_has_precedent()
+

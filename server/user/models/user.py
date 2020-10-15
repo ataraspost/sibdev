@@ -46,6 +46,16 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     username = None
+    first_name = models.CharField(
+        max_length=50,
+        blank=True,
+        default='',
+    )
+    last_name = models.CharField(
+        max_length=50,
+        blank=True,
+        default='',
+    )
     email = models.EmailField(
         validators=[validators.validate_email],
         unique=True,
@@ -54,6 +64,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     email_is_activate = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    hash_precedent = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -80,3 +95,9 @@ class User(AbstractBaseUser, PermissionsMixin):
             'exp': int(dt.strftime('%s'))
         }, settings.SECRET_KEY, algorithm='HS256')
         return token.decode('utf-8')
+
+    def set_has_precedent(self):
+        self.hash_precedent = ''
+        for item in self.precedents.all():
+            self.hash_precedent = f'{item.id} '
+        self.save()
