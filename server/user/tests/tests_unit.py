@@ -182,6 +182,17 @@ class UnitTestCase(TestCase):
         self.assertEqual(radius, 20*math.sqrt(2))
         self.assertEqual(similarity, 0.0)
 
+    def test_similarity_one_precedent(self):
+        pr_1_1 = Precedent(
+            name='test',
+            positive=1,
+            importance=5,
+            user=self.user_1
+        )
+        pr_1_1.save()
+        radius, similarity = get_similarity(self.user_1, self.user_2)
+        self.assertEqual(similarity, 0.75)
+
     def test_set_hash(self):
         pr_1 = Precedent(
             name='test',

@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'yio&mxn^q(&9k-ytg&=0ig6*!9cbdb-zjd=oa@ps=ce!&tb*yj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', False)
 
 ALLOWED_HOSTS = []
 
@@ -166,9 +166,14 @@ CELERY_DEFAULT_QUEUE = 'default'
 # EMAIL_HOST_USER = 'testsibdev1@gmail.com'
 # EMAIL_HOST_PASSWORD = '123asdqwezxc'
 
+
+
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_HOST_USER = 'coldy@bro.agency'
 DEFAULT_FROM_EMAIL = 'coldy@bro.agency'
 EMAIL_HOST_PASSWORD = 'hellocoldy2020'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+REDIS_URL = os.environ.get('REDIS_URL', 'redis')
+

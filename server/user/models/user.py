@@ -107,3 +107,4 @@ class User(AbstractBaseUser, PermissionsMixin):
         """Хашем тут будет являтся сумма меток времении изменений в БД"""
         self.hash_precedent = get_hash_precedent(self)
         self.save()
+

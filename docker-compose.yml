@@ -16,9 +16,8 @@ services:
       - migration
     environment:
       DEBUG: 'True'
-      DATABASE_URL: postgres://postgres@db/postgres
-      REDIS_URL: redis://redis/0
-      BROKER_URL: amqp://rabbit:rabbit@rabbitmq:5672/rabbit_vhost
+      REDIS_URL: 'redis'
+      BROKER_URL: 'amqp://rabbit:rabbit@rabbitmq:5672/rabbit_vhost'
     ports:
       - 8000:8000
     volumes:
@@ -50,8 +49,6 @@ services:
       - rabbitmq
     environment:
       DEBUG: 'True'
-      DATABASE_URL: postgres://postgres@db/postgres
-      REDIS_URL: redis://redis/0
       BROKER_URL: 'amqp://rabbit:rabbit@rabbitmq:5672/rabbit_vhost'
     volumes:
       - ./server:/home/python/app
@@ -76,4 +73,6 @@ services:
 
   redis:
     image: redis:5
+    ports:
+       - 6379:6379
     container_name: redis_sibdev

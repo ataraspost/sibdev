@@ -2,6 +2,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.dispatch import receiver
+from django.conf import settings
 
 from user.tasks import set_hash_user
 from contrib.models import BaseModel
@@ -32,7 +33,10 @@ class Precedent(BaseModel):
     def importance_with_sign(self):
         return self.positive * self.importance
 
-@receiver(models.signals.pre_save, sender=Precedent)
+@receiver(models.signals.post_save, sender=Precedent)
 @receiver(models.signals.post_delete, sender=Precedent)
 def auto_send_hash_precedent_user(sender, instance, **kwargs):
-    set_hash_user.delay(instance.id)
+    if settings.DEBUG:
+        set_hash_user(instance.id)
+    else:
+        set_hash_user.delay(instance.id)
