@@ -4,8 +4,9 @@ from django.db import models
 from django.dispatch import receiver
 
 from user.tasks import set_hash_user
+from contrib.models import BaseModel
 
-class Precedent(models.Model):
+class Precedent(BaseModel):
     name = models.CharField(
         max_length=50
     )
@@ -29,7 +30,7 @@ class Precedent(models.Model):
 
     @property
     def importance_with_sign(self):
-        return self.positive*self.importance
+        return self.positive * self.importance
 
 @receiver(models.signals.pre_save, sender=Precedent)
 @receiver(models.signals.post_delete, sender=Precedent)

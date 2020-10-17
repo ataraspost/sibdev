@@ -10,6 +10,8 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 
+from user.unit.hash_precedent import get_hash_precedent
+
 
 class UserManager(BaseUserManager):
 
@@ -69,6 +71,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         default='',
     )
+    hash_precedent_integer = models.BigIntegerField(
+        blank=True,
+        null=True,
+        default=None,
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -97,7 +104,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         return token.decode('utf-8')
 
     def set_has_precedent(self):
-        self.hash_precedent = ''
-        for item in self.precedents.all():
-            self.hash_precedent = f'{item.id} '
+        """Хашем тут будет являтся сумма меток времении изменений в БД"""
+        self.hash_precedent = get_hash_precedent(self)
         self.save()
