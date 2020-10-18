@@ -1,14 +1,13 @@
-
+from django.http import Http404
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.sites.shortcuts import get_current_site
 
-from .serializers import LoginSerializer
-from .serializers import RegistrationSerializer
+from .serializers import LoginSerializer, RegistrationSerializer, PrecedentSerializer, UserSerializer
 from.tasks import task_send_email
-from user.models import EmailConfirmationToken
+from user.models import EmailConfirmationToken, Precedent
 
 class RegistrationAPIView(APIView):
     permission_classes = [AllowAny]
@@ -61,3 +60,68 @@ class ActivateEmailAPIView(APIView):
         return Response({
             'message': 'email activate'
         }, status=status.HTTP_200_OK)
+
+
+class PrecedentAPIView(APIView):
+    def get_object(self, pk):
+        try:
+            return Precedent.objects.get(pk=pk)
+        except Precedent.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk=None):
+        if pk is not None:
+            precedent = self.get_object(pk)
+            assert request.user == precedent.user
+            serializer = PrecedentSerializer(precedent)
+            return Response(serializer.data)
+        precedent = Precedent.objects.all().filter(user=request.user)
+        serializer = PrecedentSerializer(precedent, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+
+        data = {
+            'name': request.data['name'],
+            'positive': request.data['positive'],
+            'importance': request.data['importance'],
+            'user': request.user.id,
+        }
+        serializer = PrecedentSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        precedent = self.get_object(pk)
+        assert request.user == precedent.user
+        data = {
+            'name': request.data.get('name', precedent.name),
+            'positive': request.data.get('positive', precedent.positive),
+            'importance': request.data.get('importance', precedent.importance),
+            'user': request.user.id,
+        }
+        serializer = PrecedentSerializer(data=data)
+        serializer.is_valid()
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        precedent = self.get_object(pk)
+        assert request.user == precedent.user
+        precedent.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserSimilarityAPIView(APIView):
+
+    def get(self, request):
+        return Response({'user': self.request.user.email, 'token': self.request.user.token}, status=status.HTTP_200_OK)
+
+class UserSimilarityWithRedisAPIView(APIView):
+
+    def get(self, request):
+        return Response({'user': self.request.user.email, 'token': self.request.user.token}, status=status.HTTP_200_OK)

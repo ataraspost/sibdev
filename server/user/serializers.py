@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from .models import User
+from .models import User, Precedent
 
 class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -52,3 +52,25 @@ class LoginSerializer(serializers.Serializer):
         return {
             'token': user.token,
         }
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+        ]
+
+class PrecedentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Precedent
+        fields = [
+            'id',
+            'name',
+            'positive',
+            'importance',
+            'user',
+        ]

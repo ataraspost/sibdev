@@ -33,6 +33,9 @@ class Precedent(BaseModel):
     def importance_with_sign(self):
         return self.positive * self.importance
 
+    class Meta:
+        unique_together = ['user', 'name']
+
 @receiver(models.signals.post_save, sender=Precedent)
 @receiver(models.signals.post_delete, sender=Precedent)
 def auto_send_hash_precedent_user(sender, instance, **kwargs):

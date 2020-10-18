@@ -40,26 +40,17 @@ def set_hash_user(id_precedent):
         calculate_similarity.delay(user.id)
 
 
-def set_redis_user(hash_, similarity, user_1, user_2):
-    redis_dump = {
-        user_1.id: user_1.hash_precedent,
-        user_2.id: user_2.hash_precedent,
-        'similarity': similarity
-    }
-    conn = redis.Redis('redis')
-    conn.hmset(hash_, redis_dump)
+def set_redis_user(hash_, similarity):
+    conn = redis.Redis(settings.REDIS_URL)
+    conn.hmset(hash_, similarity)
 
 
 @shared_task
 def calculate_similarity(id_user):
     from .models import User
     user = User.objects.get(pk=id_user)
-    if not user.hash_precedent:
-        user.set_has_precedent()
     for item in User.objects.exclude(pk=id_user, is_staff=True):
         hash_users = get_hash_user(user.id, item.id)
-        if not item.hash_precedent:
-            item.set_has_precedent()
         similarity = get_similarity(user, item)
-        set_redis_user(hash_users, similarity[1], user, item)
+        set_redis_user(hash_users, similarity[1])
 
