@@ -42,7 +42,7 @@ services:
       args:
         DEBUG: 'True'
     container_name: celery_default_worker_sibdev
-    command: poetry run celery -A config worker -l info -Q default,celery -n default-worker
+    command: poetry run celery -A config worker -B -l info -Q default,celery -n default-worker
     depends_on:
       - db
       - redis

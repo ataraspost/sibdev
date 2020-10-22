@@ -149,9 +149,9 @@ REST_FRAMEWORK = {
 CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'amqp://rabbit:rabbit@rabbitmq:5672/rabbit_vhost')
 
 CELERY_BEAT_SCHEDULE = {
-    'update_documents': {
-        'task': 'apps.lots.tasks.update_lots_from_parsed_url',
-        'schedule': crontab(hour='*/1'),
+    'send-email': {
+        'task': 'user.tasks.send_email_precedent',
+        'schedule': crontab(minute=0, hour=0),
     },
 }
 
@@ -177,3 +177,5 @@ EMAIL_USE_TLS = True
 
 REDIS_URL = os.environ.get('REDIS_URL', 'redis')
 
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
