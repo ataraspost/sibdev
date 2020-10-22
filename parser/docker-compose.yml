@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  parser:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: parser
+    container_name: parser
+#    command: poetry remove async_sqlalchemy
+    command: poetry run python parser.py
+    volumes:
+      - .:/home/python/app
+
+networks:
+  default:
+    external:
+      name: test_sibdev_default

@@ -33,7 +33,6 @@ def set_hash_user(id_precedent):
     from .models import Precedent
     #TODO переписать на запрос через пользователя
     user = Precedent.objects.get(pk=id_precedent).user
-    user.set_has_precedent()
     if settings.DEBUG:
         calculate_similarity(user.id)
     else:
@@ -42,7 +41,7 @@ def set_hash_user(id_precedent):
 
 def set_redis_user(hash_, similarity):
     conn = redis.Redis(settings.REDIS_URL)
-    conn.hmset(hash_, similarity)
+    conn.set(hash_, similarity)
 
 
 @shared_task
@@ -52,5 +51,6 @@ def calculate_similarity(id_user):
     for item in User.objects.exclude(pk=id_user, is_staff=True):
         hash_users = get_hash_user(user.id, item.id)
         similarity = get_similarity(user, item)
-        set_redis_user(hash_users, similarity[1])
+        if similarity[1] > 0.75:
+            set_redis_user(hash_users, similarity[1])
 

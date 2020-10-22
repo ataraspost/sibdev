@@ -66,16 +66,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     email_is_activate = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    hash_precedent = models.CharField(
-        max_length=255,
-        blank=True,
-        default='',
-    )
-    hash_precedent_integer = models.BigIntegerField(
-        blank=True,
-        null=True,
-        default=None,
-    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -102,9 +92,4 @@ class User(AbstractBaseUser, PermissionsMixin):
             'exp': int(dt.strftime('%s'))
         }, settings.SECRET_KEY, algorithm='HS256')
         return token.decode('utf-8')
-
-    def set_has_precedent(self):
-        """Хашем тут будет являтся сумма меток времении изменений в БД"""
-        self.hash_precedent = get_hash_precedent(self)
-        self.save()
 

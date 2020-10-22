@@ -11,7 +11,7 @@ class Precedent(BaseModel):
     name = models.CharField(
         max_length=50
     )
-    positive = models.SmallIntegerField(
+    attitude = models.SmallIntegerField(
         choices=[
             (1, 'positive'),
             (-1,'negative'),
@@ -31,7 +31,7 @@ class Precedent(BaseModel):
 
     @property
     def importance_with_sign(self):
-        return self.positive * self.importance
+        return self.attitude * self.importance
 
     class Meta:
         unique_together = ['user', 'name']
