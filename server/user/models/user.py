@@ -10,8 +10,6 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 
-from user.unit.hash_precedent import get_hash_precedent
-
 
 class UserManager(BaseUserManager):
 
