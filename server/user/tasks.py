@@ -64,6 +64,11 @@ def send_email_precedent():
     for item in Precedent.objects.values('name').annotate(Count('id')):
         precedent_dict[item['name']] = item['id__count']
 
+    '''Можно пределать через raw sql что бы работал чуть быстрей но это не кретично так как задача фоновая
+    select row_number() over () as id, "name", COUNT(id)
+    FROM public.user_precedent
+    group by "name";
+    '''
     user = User.objects.prefetch_related('precedents').all()
     for item in user:
         precedent_set = set([i.name for i in item.precedents.all()])

@@ -70,7 +70,7 @@ class PrecedentSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'name',
-            'positive',
+            'attitude',
             'importance',
             'user',
         ]

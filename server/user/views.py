@@ -84,7 +84,7 @@ class PrecedentAPIView(APIView):
 
         data = {
             'name': request.data['name'],
-            'positive': request.data['positive'],
+            'attitude': request.data['attitude'],
             'importance': request.data['importance'],
             'user': request.user.id,
         }
@@ -99,7 +99,7 @@ class PrecedentAPIView(APIView):
         assert request.user == precedent.user
         data = {
             'name': request.data.get('name', precedent.name),
-            'positive': request.data.get('positive', precedent.positive),
+            'attitude': request.data.get('attitude', precedent.attitude),
             'importance': request.data.get('importance', precedent.importance),
             'user': request.user.id,
         }
