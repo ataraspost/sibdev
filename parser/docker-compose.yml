@@ -7,7 +7,6 @@ services:
       dockerfile: Dockerfile
     image: parser
     container_name: parser
-#    command: poetry remove async_sqlalchemy
     command: poetry run python parser.py
     volumes:
       - .:/home/python/app
