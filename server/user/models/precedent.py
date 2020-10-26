@@ -4,7 +4,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.conf import settings
 
-from user.tasks import set_hash_user
+# from user.tasks import set_hash_user
 from contrib.models import BaseModel
 
 class Precedent(BaseModel):

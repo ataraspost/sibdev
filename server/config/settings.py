@@ -153,20 +153,13 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'user.tasks.send_email_precedent',
         'schedule': crontab(minute=0, hour=0),
     },
+    'calculation-similarity': {
+        'task': 'user.tasks.calculation_all_similarity',
+        'schedule': crontab(minute=0, hour=0),
+    }
 }
 
 CELERY_DEFAULT_QUEUE = 'default'
-
-
-#TODO переделать почту
-# MAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_USE_TLS = True
-# EMAIL_PORT = 587
-# EMAIL_HOST_USER = 'testsibdev1@gmail.com'
-# EMAIL_HOST_PASSWORD = '123asdqwezxc'
-
-
 
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_HOST_USER = 'coldy@bro.agency'

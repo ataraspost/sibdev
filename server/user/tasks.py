@@ -1,5 +1,7 @@
 import string
 import random
+from heapq import heappush, heappop
+
 import redis
 import itertools
 
@@ -31,30 +33,32 @@ def task_send_email(id_user, domain):
         'coldy@bro.agency',
         (user.email,))
 
-@shared_task
-def set_hash_user(id_precedent):
-    from .models import Precedent
-    #TODO переписать на запрос через пользователя
-    user = Precedent.objects.get(pk=id_precedent).user
-    if settings.DEBUG:
-        calculate_similarity(user.id)
-    else:
-        calculate_similarity.delay(user.id)
+
+# @shared_task
+# def set_hash_user(id_precedent):
+#     from .models import Precedent
+#     #TODO переписать на запрос через пользователя
+#     user = Precedent.objects.get(pk=id_precedent).user
+#     if settings.DEBUG:
+#         calculate_similarity(user.id)
+#     else:
+#         calculate_similarity.delay(user.id)
 
 
 def set_redis_user(hash_, similarity):
     conn = redis.Redis(settings.REDIS_URL)
-    conn.set(hash_, similarity)
+    conn.hmset(hash_, similarity)
 
-@shared_task
-def calculate_similarity(id_user):
-    from .models import User
-    user = User.objects.get(pk=id_user)
-    for item in User.objects.exclude(pk=id_user, is_staff=True):
-        hash_users = get_hash_user(user.id, item.id)
-        similarity = get_similarity(user, item)
-        if similarity[1] > 0.75:
-            set_redis_user(hash_users, similarity[1])
+
+# @shared_task
+# def calculate_similarity(id_user):
+#     from .models import User
+#     user = User.objects.get(pk=id_user)
+#     for item in User.objects.exclude(pk=id_user, is_staff=True):
+#         hash_users = get_hash_user(user.id, item.id)
+#         similarity = get_similarity(user, item)
+#         if similarity[1] > 0.75:
+#             set_redis_user(hash_users, similarity[1])
 
 
 @app.task
@@ -86,5 +90,34 @@ def send_email_precedent():
                 (item.email,))
 
 
+def calculation_similarity(user):
+    from dataclasses import dataclass, field
+    from .models import User
 
 
+    @dataclass(order=True)
+    class PrioritizedItem:
+        priority: int
+        item: User = field(compare=False)
+    h = []
+    for item in User.objects.exclude(pk=user.pk).all():
+        sim = get_similarity(user, item)
+        if sim[1] > 0.75:
+            heappush(h, PrioritizedItem((1 - sim[1]), item))
+    user_dict = {}
+    for item in range(20):
+        try:
+            user_sim = heappop(h)
+        except IndexError:
+            break
+        else:
+            user_dict[user_sim.item.id] = 1 - user_sim.priority
+    return user_dict
+
+
+@app.task
+def calculation_all_similarity():
+    from .models import User
+    for item in User.objects.all():
+        sim = calculation_similarity(item)
+        set_redis_user(item.id, sim)

@@ -1,14 +1,17 @@
 
+import redis
 from django.http import Http404
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.sites.shortcuts import get_current_site
+from django.conf import settings
 
-from .serializers import LoginSerializer, RegistrationSerializer, PrecedentSerializer, UserSerializer
+from .serializers import LoginSerializer, RegistrationSerializer, PrecedentSerializer
 from.tasks import task_send_email
 from user.models import EmailConfirmationToken, Precedent
+
 
 class RegistrationAPIView(APIView):
     permission_classes = [AllowAny]
@@ -118,11 +121,13 @@ class PrecedentAPIView(APIView):
 
 
 class UserSimilarityAPIView(APIView):
+    permission_classes = [AllowAny]
 
-    def get(self, request):
-        return Response({'user': self.request.user.email, 'token': self.request.user.token}, status=status.HTTP_200_OK)
+    def get(self, request, pk):
+        conn = redis.Redis(settings.REDIS_URL)
+        sim = conn.hgetall(pk)
+        sim_dict = {}
+        for key in sim:
+            sim_dict[key.decode('utf-8')] = sim[key].decode('utf-8')
+        return Response(sim_dict, status=status.HTTP_200_OK)
 
-class UserSimilarityWithRedisAPIView(APIView):
-
-    def get(self, request):
-        return Response({'user': self.request.user.email, 'token': self.request.user.token}, status=status.HTTP_200_OK)

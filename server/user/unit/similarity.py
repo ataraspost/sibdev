@@ -19,7 +19,7 @@ def get_similarity(user_1, user_2):
             vector[item.name][1] = item.importance_with_sign
 
     radius = _radius(vector)
-    return radius, _get_relative_similarity(radius)
+    return radius, _get_relative_similarity(radius, len(vector))
 
 def _radius(vector):
     """Растояние по Евклиду"""
@@ -29,7 +29,7 @@ def _radius(vector):
     return math.sqrt(radius)
 
 
-def _get_relative_similarity(radius):
+def _get_relative_similarity(radius, n):
     """так как у нас все точуи находятся в нутри n-мерной сфере,
     то максимальное растояние междй ними равно диаметру сферы,
     будем его считят за 0 % а растояние в 0 зв 100% схожетси
@@ -40,5 +40,8 @@ def _get_relative_similarity(radius):
 
     from user.models import Precedent
     # определяем размерность пространства признаков
-    n = len(Precedent.objects.values('name').annotate(count_name=Count('name')))
-    return (20 * math.sqrt(n) - radius) / (20 * math.sqrt(n))
+    # n = len(Precedent.objects.values('name').annotate(count_name=Count('name')))
+    try:
+        return (20 * math.sqrt(n) - radius) / (20 * math.sqrt(n))
+    except ZeroDivisionError:
+        return 0
