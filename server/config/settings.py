@@ -161,12 +161,12 @@ CELERY_BEAT_SCHEDULE = {
 
 CELERY_DEFAULT_QUEUE = 'default'
 
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_HOST_USER = 'coldy@bro.agency'
-DEFAULT_FROM_EMAIL = 'coldy@bro.agency'
-EMAIL_HOST_PASSWORD = 'hellocoldy2020'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.yandex.ru')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '')
+EMAIL_HOST_PASSWORD = os.environ.get( 'EMAIL_HOST_PASSWORD', '')
+EMAIL_PORT =os.environ.get('EMAIL_PORT', 587)
+EMAIL_USE_TLS =os.environ.get( 'EMAIL_USE_TLS', True)
 
 REDIS_URL = os.environ.get('REDIS_URL', 'redis')
 
