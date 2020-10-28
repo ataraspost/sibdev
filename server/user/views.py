@@ -121,8 +121,6 @@ class PrecedentAPIView(APIView):
 
 
 class UserSimilarityAPIView(APIView):
-    permission_classes = [AllowAny]
-
     def get(self, request, pk):
         conn = redis.Redis(settings.REDIS_URL)
         sim = conn.hgetall(pk)

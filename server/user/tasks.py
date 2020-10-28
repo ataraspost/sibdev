@@ -11,7 +11,7 @@ from django.conf import settings
 from django.db.models import Count
 from config.celery import app
 
-from user.unit import get_hash_user, get_similarity
+from user.unit import get_similarity
 
 
 @shared_task
@@ -34,31 +34,9 @@ def task_send_email(id_user, domain):
         (user.email,))
 
 
-# @shared_task
-# def set_hash_user(id_precedent):
-#     from .models import Precedent
-#     #TODO переписать на запрос через пользователя
-#     user = Precedent.objects.get(pk=id_precedent).user
-#     if settings.DEBUG:
-#         calculate_similarity(user.id)
-#     else:
-#         calculate_similarity.delay(user.id)
-
-
 def set_redis_user(hash_, similarity):
     conn = redis.Redis(settings.REDIS_URL)
     conn.hmset(hash_, similarity)
-
-
-# @shared_task
-# def calculate_similarity(id_user):
-#     from .models import User
-#     user = User.objects.get(pk=id_user)
-#     for item in User.objects.exclude(pk=id_user, is_staff=True):
-#         hash_users = get_hash_user(user.id, item.id)
-#         similarity = get_similarity(user, item)
-#         if similarity[1] > 0.75:
-#             set_redis_user(hash_users, similarity[1])
 
 
 @app.task
@@ -94,11 +72,12 @@ def calculation_similarity(user):
     from dataclasses import dataclass, field
     from .models import User
 
-
+    '''Это класс нужен только для работы кучи, по этому он определён тут'''
     @dataclass(order=True)
     class PrioritizedItem:
         priority: int
         item: User = field(compare=False)
+
     h = []
     for item in User.objects.exclude(pk=user.pk).all():
         sim = get_similarity(user, item)
@@ -120,4 +99,6 @@ def calculation_all_similarity():
     from .models import User
     for item in User.objects.all():
         sim = calculation_similarity(item)
+        '''Для хранения выбран redis по причине того, что он должен быть быстрей БД, 
+        но если он не буде проходить по памяти хранение значении можно реализовать  в БД '''
         set_redis_user(item.id, sim)
