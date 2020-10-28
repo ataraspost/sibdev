@@ -9,6 +9,8 @@ from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Count
+from django.template.loader import render_to_string
+
 from config.celery import app
 
 from user.unit import get_similarity
@@ -27,9 +29,10 @@ def task_send_email(id_user, domain):
     )
     ec.save()
     # TODO Переделать на шаблон
+    rendered = render_to_string('email.j2', {'domain': domain, 'token': ec.token})
     send_mail(
         'Подтвердите свою посту',
-        f'{domain}/activate-email/{ec.token}/',
+        rendered,
         'coldy@bro.agency',
         (user.email,))
 
